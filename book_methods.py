@@ -113,3 +113,96 @@ wnl = nltk.WordNetLemmatizer()
 #Remember to prefix regular expressions with the letter r (meaning "raw"), which instructs the Python interpreter to treat the string literally, rather than processing any backslashed characters it contains.
 # split this raw text on any whitespace character
 re.split(r'\s+', raw)
+
+
+
+#########################################################################################
+#########################################################################################
+# CHAPTER 5 
+#########################################################################################
+#########################################################################################
+#A part-of-speech tagger, or POS-tagger, processes a sequence of words, and attaches a part of speech tag to each word
+text = nltk.word_tokenize("And now for something completely different")
+nltk.pos_tag(text)
+#what do the tags mean? Use:
+nltk.help.upenn_tagset('RB')
+
+
+#########################################################################################
+#########################################################################################
+# CHAPTER 6   Learning to Classify Text 
+#########################################################################################
+#########################################################################################
+
+# define a feature for each word, indicating whether the document contains that word. To limit the number of features that the classifier needs to process, we begin by constructing a list of the 2000 most frequent words in the overall corpus [1]. We can then define a feature extractor [2] that simply checks whether each of these words is present in a given document.
+import nltk, random
+
+#select the most commonly occurring words in the movie_reviews database
+from nltk.corpus import movie_reviews
+documents = [(list(movie_reviews.words(fileid)), category)
+             for category in movie_reviews.categories()
+             for fileid in movie_reviews.fileids(category)]
+random.shuffle(documents)
+
+all_words = nltk.FreqDist(w.lower() for w in movie_reviews.words())
+word_features = all_words.keys()[:2000] # [_document-classify-all-words]
+
+def document_features(document): # [_document-classify-extractor]
+    document_words = set(document) # [_document-classify-set]
+    features = {}
+    for word in word_features:
+        features['contains(%s)' % word] = (word in document_words)
+    return features
+
+print document_features(movie_reviews.words('pos/cv957_8737.txt')) 
+
+#Now that we've defined our feature extractor, we can use it to train a classifier to label new movie reviews (6.5). To check how reliable the resulting classifier is, we compute its accuracy on the test set [1]. And once again, we can use show_most_informative_features() to find out which features the classifier found to be most informative
+featuresets = [(document_features(d), c) for (d,c) in documents]
+train_set, test_set = featuresets[100:], featuresets[:100]
+classifier = nltk.NaiveBayesClassifier.train(train_set)
+print nltk.classify.accuracy(classifier, test_set)
+classifier.show_most_informative_features(5)
+
+
+
+#Identifying Dialogue Act Types
+posts = nltk.corpus.nps_chat.xml_posts()[:10000]
+def dialogue_act_features(post):
+    features = {}
+    for word in nltk.word_tokenize(post):
+        features['contains(%s)' % word.lower()] = True
+    return features
+
+featuresets = [(dialogue_act_features(post.text), post.get('class'))
+                for post in posts]
+
+size = int(len(featuresets) * 0.1)
+train_set, test_set = featuresets[size:], featuresets[:size]
+classifier = nltk.NaiveBayesClassifier.train(train_set)
+print nltk.classify.accuracy(classifier, test_set)
+
+
+# named entity recognition
+# build a tagger that labels each word in a sentence using the IOB format, where chunks are labeled by their appropriate type.
+# build a dictionary of publicly-listed companies and tickers
+# analyze each message to see if an entry in the dict is present. If yes, label the sentence with that entry
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
