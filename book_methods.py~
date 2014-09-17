@@ -1,0 +1,46 @@
+from nltk.book import *
+
+#########################################################################################
+#########################################################################################
+#A concordance view shows us every occurrence of a given word, together with some context.
+text1.concordance("monstrous")
+
+#########################################################################################
+#########################################################################################
+#Loading your own Corpus
+from nltk.corpus import PlaintextCorpusReader
+#location of your file
+corpus_root = '/usr/share/dict' [1]
+#The second parameter of the PlaintextCorpusReader initializer can be a list of fileids, like ['a.txt', 'test/b.txt'], or a pattern that matches all fileids, like '[abc]/.*\.txt'
+wordlists = PlaintextCorpusReader(corpus_root, '.*') [2]
+wordlists.fileids()
+wordlists.words('connectives')
+
+#########################################################################################
+#########################################################################################
+# lexical resources
+# see http://nltk.org/howto for more info
+#stopwords, that is, high-frequency words like the, to and also that we sometimes want to filter out of a document before further processing
+from nltk.corpus import stopwords
+stopwords.words('english')
+
+#filter out stopwords from a set of words labeled by 'text'
+stopwords = nltk.corpus.stopwords.words('english')
+content = [w for w in text if w.lower() not in stopwords]
+
+
+#generate synonyms (can use to classify sentiment of a synonym)
+from nltk.corpus import wordnet as wn
+wn.synsets('motorcar')
+wn.synset('car.n.01').lemma_names()
+wn.synset('car.n.01').lemmas()
+
+
+#########################################################################################
+#########################################################################################
+#CHAPTER 3: Processing raw text
+from __future__ import division  # Python 2 users only
+import nltk, re, pprint
+from nltk import word_tokenize
+
+#The variable raw contains a string with characters, including many details we are not interested in such as whitespace, line breaks and blank lines. we want to break up the string into words and punctuation. This step is called tokenization, and it produces our familiar structure, a list of words and punctuation.
